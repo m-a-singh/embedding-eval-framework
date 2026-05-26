@@ -1,5 +1,9 @@
 # embedding-eval-framework
 
+## License
+
+MIT — see `LICENSE`.
+
 A model embedding evaluation framework for comparing multiple request-building / chunking strategies across multiple embedding models.
 
 
