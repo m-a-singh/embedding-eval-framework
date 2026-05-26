@@ -16,3 +16,7 @@ results/
 __MACOSX/
 .idea/
 *.iml
+.venv
+DS_Store
+strategies/__pycache__/*
+strategies/__pycache__
