@@ -1,0 +1,6 @@
+sentence-transformers>=5.1.2
+scikit-learn>=1.3,<2
+numpy>=1.24,<3
+tqdm>=4.66,<5
+pandas>=2.2,<3
+# Optional: set HF_TOKEN env var to avoid unauthenticated hub rate limits
