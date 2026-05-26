@@ -15,6 +15,16 @@ This generic version is designed for **portfolio/public sharing**:
 
 ---
 
+## What this demonstrates
+
+- **Strategy ablations, not just model swaps:** compare request-building approaches (`current` vs `chunking`) to isolate whether retrieval quality is dominated by *prompt construction* rather than the embedding model itself.
+- **Field-aware retrieval design:** `weighted_chunking` encodes fields independently, applies explicit per-field weights, and then pools—useful when certain attributes (e.g. tags vs description) should contribute more to similarity.
+- **Data hygiene as a first-class baseline:** `cleansed` shows how lightweight normalization (ASCII cleanup, whitespace collapse, dedupe) can change embedding inputs and therefore ranking behavior.
+- **Production-parity input simulation:** `triton_input_simulator.py` mirrors Triton-style string tensor formatting so you can catch serving-time text formatting issues locally before deploying.
+- **Evaluation plumbing that’s easy to extend:** JSONL in → per-(row, model, strategy) TSV out → aggregated report (`build_report.py`) enables quick iteration and adding new strategies/metrics without changing the dataset format.
+
+---
+
 ## What it does
 
 Given rows containing:
