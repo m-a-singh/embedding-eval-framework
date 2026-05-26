@@ -55,28 +55,31 @@ def main() -> int:
             return float("nan")
         return float(x.corr(y))
 
+    def summarize_group(g: pd.DataFrame) -> pd.Series:
+        relevant = g.loc[g["is_relevant"], "cosine_similarity"]
+        nonrelevant = g.loc[~g["is_relevant"], "cosine_similarity"]
+        mean_relevant = float(relevant.mean())
+        mean_nonrelevant = float(nonrelevant.mean())
+
+        return pd.Series(
+            {
+                "n": int(len(g)),
+                "mean_cosine": float(g["cosine_similarity"].mean()),
+                "median_cosine": float(g["cosine_similarity"].median()),
+                "mean_cosine_relevant": mean_relevant,
+                "mean_cosine_nonrelevant": mean_nonrelevant,
+                "delta_relevant_minus_nonrelevant": float(
+                    mean_relevant - mean_nonrelevant
+                ),
+                "pearson_corr_cosine_vs_relevance": safe_corr(g),
+            }
+        )
+
+    # NOTE: include_groups=False avoids a pandas FutureWarning where grouping columns
+    # will be excluded from the applied frame in future versions.
     summary = (
         df.groupby(group_cols, dropna=False)
-        .apply(
-            lambda g: pd.Series(
-                {
-                    "n": int(len(g)),
-                    "mean_cosine": float(g["cosine_similarity"].mean()),
-                    "median_cosine": float(g["cosine_similarity"].median()),
-                    "mean_cosine_relevant": float(
-                        g.loc[g["is_relevant"], "cosine_similarity"].mean()
-                    ),
-                    "mean_cosine_nonrelevant": float(
-                        g.loc[~g["is_relevant"], "cosine_similarity"].mean()
-                    ),
-                    "delta_relevant_minus_nonrelevant": float(
-                        g.loc[g["is_relevant"], "cosine_similarity"].mean()
-                        - g.loc[~g["is_relevant"], "cosine_similarity"].mean()
-                    ),
-                    "pearson_corr_cosine_vs_relevance": safe_corr(g),
-                }
-            )
-        )
+        .apply(summarize_group, include_groups=False)
         .reset_index()
         .sort_values(
             ["delta_relevant_minus_nonrelevant", "pearson_corr_cosine_vs_relevance"],

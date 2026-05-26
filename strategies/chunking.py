@@ -3,37 +3,15 @@ from typing import Any
 import numpy as np
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
-from triton_input_simulator import simulate_triton_encode
 
-from utils import (
-    normalize_keyword,
-    normalize_scalar_field,
-    normalize_unlabeled_list_field,
+from strategies.shared import (
+    build_field_map,
+    build_request,
+    build_result_dict,
+    mean_normalize_embeddings,
 )
-
-
-def build_field_map(json_data: dict[str, Any]) -> dict[str, str]:
-    return {
-        "name": normalize_scalar_field(json_data.get("name")),
-        "sponsors": normalize_unlabeled_list_field(json_data.get("sponsors")),
-        "description": normalize_scalar_field(
-            json_data.get("description") or json_data.get("name")
-        ),
-        "tagCategories": normalize_unlabeled_list_field(json_data.get("tagCategories")),
-        "tagTopics": normalize_unlabeled_list_field(json_data.get("tagTopics")),
-    }
-
-
-def build_request(field_map: dict[str, str]) -> str:
-    return " ".join(value for value in field_map.values() if value)
-
-
-def mean_normalize_embeddings(embeddings: list[np.ndarray]) -> np.ndarray:
-    mean_embedding = np.mean(np.stack(embeddings, axis=0), axis=0)
-    norm = np.linalg.norm(mean_embedding)
-    if norm == 0:
-        return mean_embedding
-    return mean_embedding / norm
+from triton_input_simulator import simulate_triton_encode
+from utils import normalize_keyword
 
 
 def process_row(
@@ -84,24 +62,24 @@ def process_row(
     keyword_emb, _ = simulate_triton_encode(model, [keyword], model_id)
     cosine_score = float(cosine_similarity(keyword_emb, label_emb)[0][0])
 
-    return {
-        "id": row_id,
-        "entity_type": entity_type,
-        "keyword": keyword,
-        "keyword_normalized": keyword_normalized,
-        "model_name": model_id,
-        "request": request_text,
-        "triton_input": triton_input if triton_input else "",
-        "chunking_strategy": strategy,
-        "field_count": len([value for value in field_map.values() if value]),
-        "token_length": sum(len(t) for t in chunk_tokens_list),
-        "tokens": "\n".join(
+    return build_result_dict(
+        row_id=row_id,
+        entity_type=entity_type,
+        keyword=keyword,
+        keyword_normalized=keyword_normalized,
+        model_id=model_id,
+        request_text=request_text,
+        triton_input=triton_input if triton_input else "",
+        strategy=strategy,
+        field_count=len([value for value in field_map.values() if value]),
+        token_length=sum(len(t) for t in chunk_tokens_list),
+        tokens="\n".join(
             [
                 f"Chunk {i + 1}: {' '.join(tokens)}"
                 for i, tokens in enumerate(chunk_tokens_list)
             ]
         ),
-        "cosine_similarity": cosine_score,
-        "relevance_score": relevance_score,
-        "baseline_relevance_score": baseline_relevance_score,
-    }
+        cosine_score=cosine_score,
+        relevance_score=relevance_score,
+        baseline_relevance_score=baseline_relevance_score,
+    )
