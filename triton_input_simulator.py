@@ -17,5 +17,4 @@ def simulate_triton_encode(
         input_text.tolist() if hasattr(input_text, "tolist") else list(input_text)
     )
 
-    # print(f"{model_name} triton_input: {triton_input}")
     return model.encode(triton_input), triton_input
