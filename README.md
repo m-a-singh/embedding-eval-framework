@@ -40,17 +40,17 @@ This generic version is designed for **portfolio/public sharing**:
 
 ```mermaid
 flowchart TD
-  R[Row: {keyword, json_data, labels}] --> S{Strategy}
+  R[Row inputs] --> S{Strategy}
   S -->|current/cleansed| BR1[build_request(json_data)]
   S -->|chunking/weighted_chunking| FM[build_field_map(json_data)]
   FM --> BR2[build_request(field_map)]
   BR1 --> TOK[tokenize request]
   BR2 --> TOK
 
-  R --> KW[Keyword] --> TR[simulate_triton_encode()\n(Triton-style string tensor)]
+  R --> KW[keyword] --> TR[simulate_triton_encode()\nTriton-style string tensor]
   TOK --> TR
 
-  TR --> EMB[Embeddings:\nkeyword_emb, request_emb]
+  TR --> EMB[Embeddings\nkeyword_emb + request_emb]
   EMB --> COS[cosine_similarity]
   COS --> OUT[results.tsv row]
   OUT --> REP[build_report.py\naggregations + correlations]
