@@ -3,9 +3,10 @@ import json
 from pathlib import Path
 from typing import Any, Iterable
 
-from results_writer import write_results_to_tsv
 from sentence_transformers import SentenceTransformer
 from tqdm import tqdm
+
+from results_writer import write_results_to_tsv
 
 # Generic, public model IDs (downloaded automatically by sentence-transformers)
 DEFAULT_MODELS = [

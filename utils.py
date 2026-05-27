@@ -1,5 +1,5 @@
-from typing import Any
 import re
+from typing import Any
 
 
 def normalize_keyword(keyword: str) -> str:
@@ -55,6 +55,7 @@ def cleansed_normalize_labeled_list_field(value: Any) -> str:
                 cleaned_values.append(cleaned)
         return ",".join(sort_text_values(cleaned_values))
     return cleanse_text(str(value))
+
 
 def cleansed_normalize_scalar_field(value: Any) -> str:
     if value is None:

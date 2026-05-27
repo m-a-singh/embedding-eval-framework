@@ -2,8 +2,8 @@ from typing import Any
 
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
-from triton_input_simulator import simulate_triton_encode
 
+from triton_input_simulator import simulate_triton_encode
 from utils import (
     normalize_keyword,
     normalize_scalar_field,

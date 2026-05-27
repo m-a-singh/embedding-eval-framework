@@ -1,0 +1,17 @@
+# Ruff configuration for a small, script-first repo.
+# Keep it lightweight: ruff handles lint + formatting.
+
+line-length = 88
+target-version = "py39"
+
+[lint]
+# Start with a sensible, low-noise default.
+# E: pycodestyle errors
+# F: pyflakes
+# I: import sorting (isort)
+select = ["E", "F", "I"]
+
+# These scripts are intentionally simple; allow some minor style shortcuts.
+ignore = [
+  "E501", # line length (formatter will handle)
+]

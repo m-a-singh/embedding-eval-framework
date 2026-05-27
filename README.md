@@ -1,10 +1,21 @@
 # embedding-eval-framework
 
+[![CI](https://github.com/<OWNER>/<REPO>/actions/workflows/ci.yml/badge.svg)](https://github.com/<OWNER>/<REPO>/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)](#)
+[![Ruff](https://img.shields.io/badge/lint-ruff-informational.svg)](https://github.com/astral-sh/ruff)
+
 ## License
 
 MIT — see `LICENSE`.
 
 A model embedding evaluation framework for comparing multiple request-building / chunking strategies across multiple embedding models.
+
+## Repo hygiene
+
+- CI: GitHub Actions runs tests on Python **3.9–3.12** (`.github/workflows/ci.yml`).
+- Lint/format: `ruff` (configured for `py39` via `ruff.toml`).
+- Tests: `pytest` unit tests cover deterministic helpers (no model download required).
 
 
 
@@ -22,6 +33,28 @@ This generic version is designed for **portfolio/public sharing**:
 - **Data hygiene as a first-class baseline:** `cleansed` shows how lightweight normalization (ASCII cleanup, whitespace collapse, dedupe) can change embedding inputs and therefore ranking behavior.
 - **Production-parity input simulation:** `triton_input_simulator.py` mirrors Triton-style string tensor formatting so you can catch serving-time text formatting issues locally before deploying.
 - **Evaluation plumbing that’s easy to extend:** JSONL in → per-(row, model, strategy) TSV out → aggregated report (`build_report.py`) enables quick iteration and adding new strategies/metrics without changing the dataset format.
+
+---
+
+## Architecture (per-row evaluation pipeline)
+
+```mermaid
+flowchart TD
+  R[Row: {keyword, json_data, labels}] --> S{Strategy}
+  S -->|current/cleansed| BR1[build_request(json_data)]
+  S -->|chunking/weighted_chunking| FM[build_field_map(json_data)]
+  FM --> BR2[build_request(field_map)]
+  BR1 --> TOK[tokenize request]
+  BR2 --> TOK
+
+  R --> KW[Keyword] --> TR[simulate_triton_encode()\n(Triton-style string tensor)]
+  TOK --> TR
+
+  TR --> EMB[Embeddings:\nkeyword_emb, request_emb]
+  EMB --> COS[cosine_similarity]
+  COS --> OUT[results.tsv row]
+  OUT --> REP[build_report.py\naggregations + correlations]
+```
 
 ---
 
