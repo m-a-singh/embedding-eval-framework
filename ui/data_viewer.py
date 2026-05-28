@@ -63,7 +63,16 @@ if not summary_df.empty:
                 display_df = summary_df[summary_df['chunking_strategy'] == selected_strategy]
 
             if not display_df.empty:
-                st.bar_chart(display_df.set_index('chunking_strategy')[selected_correlation_column])
+
+                # Use Plotly for colored bar chart
+                fig = px.bar(
+                    display_df,
+                    x='chunking_strategy',
+                    y=selected_correlation_column,
+                    color='chunking_strategy',
+                    title="Pearson Correlation Scores by Strategy"
+                )
+                st.plotly_chart(fig, use_container_width=True)
                 st.dataframe(display_df)
             else:
                 st.info("No data to display for the selected strategy.")
