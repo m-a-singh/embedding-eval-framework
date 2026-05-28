@@ -11,6 +11,21 @@ MIT — see `LICENSE`.
 
 A model embedding evaluation framework for comparing multiple request-building / chunking strategies across multiple embedding models.
 
+## Expected Output
+
+The following images show the expected output of the Streamlit data viewer:
+
+![Summary View](screenshots/streamlit_screenshot_1.png)
+![Detailed Results View](screenshots/streamlit_screenshot_2.png)
+
+**(Please add the actual image files to your project, e.g., in an `images/` directory, and update the paths above accordingly.)**
+
+To run the data viewer, use the following command:
+
+```bash
+streamlit run ui/data_viewer.py
+```
+
 ## Repo hygiene
 
 - CI: GitHub Actions runs tests on Python **3.9–3.12** (`.github/workflows/ci.yml`).

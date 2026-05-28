@@ -5,3 +5,5 @@ tqdm>=4.66,<5
 pandas>=2.2,<3
 # Optional: set HF_TOKEN env var to avoid unauthenticated hub rate limits
 pytest>=8.4.2
+streamlit>=1.50.0
+plotly>=6.7.0
