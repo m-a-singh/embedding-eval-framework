@@ -11,20 +11,30 @@ MIT — see `LICENSE`.
 
 A model embedding evaluation framework for comparing multiple request-building / chunking strategies across multiple embedding models.
 
-## Expected Output
+## Streamlit UIs (import → run → view)
 
-The following images show the expected output of the Streamlit data viewer:
+There are two Streamlit entrypoints:
 
-![Summary View](screenshots/streamlit_screenshot_1.png)
-![Detailed Results View](screenshots/streamlit_screenshot_2.png)
-
-**(Please add the actual image files to your project, e.g., in an `images/` directory, and update the paths above accordingly.)**
-
-To run the data viewer, use the following command:
+1) **Import UI** (build `data/sample.jsonl` from CSV/JSON/JSONL)
 
 ```bash
-streamlit run ui/data_viewer.py
+streamlit run ui/app.py
 ```
+
+2) **Dashboard UI** (run evaluation + build report + view charts/tables)
+
+```bash
+streamlit run data_viewer.py
+```
+
+### Recommended flow
+
+1. Run the importer: `streamlit run ui/app.py`
+2. Import your dataset and write `data/sample.jsonl`
+3. Run the dashboard: `streamlit run data_viewer.py`
+4. Click **Execute Model Evaluation** to generate:
+   - `results/results.tsv`
+   - `results/summary.csv`
 
 ## Repo hygiene
 
@@ -139,6 +149,10 @@ Default output path:
 
 ## How to run
 
+### CLI
+
+Run evaluation:
+
 ```bash
 python3 run_evaluation.py \
   --data data/sample.jsonl \
@@ -151,6 +165,20 @@ Generate an aggregated summary report:
 python3 build_report.py \
   --in results/results.tsv \
   --out results/summary.csv
+```
+
+### Streamlit
+
+Importer UI:
+
+```bash
+streamlit run ui/app.py
+```
+
+Dashboard UI:
+
+```bash
+streamlit run data_viewer.py
 ```
 
 Filter to a single entity type:
@@ -181,11 +209,35 @@ flowchart TD
   G --> H[results/summary.csv]
 ```
 
+## Testing
+
+Run the unit tests:
+
+```bash
+.venv/bin/python -m pytest -q
+```
+
+## Screenshots (end-to-end flow)
+
+Below are example screenshots from `screenshots/` showing the Streamlit dashboard output.
+
+1. ![streamlit_screenshot_1](screenshots/streamlit_screenshot_1.png)
+2. ![streamlit_screenshot_2](screenshots/streamlit_screenshot_2.png)
+3. ![streamlit_screenshot_3](screenshots/streamlit_screenshot_3.png)
+4. ![streamlit_screenshot_4](screenshots/streamlit_screenshot_4.png)
+5. ![streamlit_screenshot_5](screenshots/streamlit_screenshot_5.png)
+6. ![streamlit_screenshot_6](screenshots/streamlit_screenshot_6.png)
+7. ![streamlit_screenshot_7](screenshots/streamlit_screenshot_7.png)
+8. ![streamlit_screenshot_8](screenshots/streamlit_screenshot_8.png)
+9. ![streamlit_screenshot_9](screenshots/streamlit_screenshot_9.png)
+10. ![streamlit_screenshot_10](screenshots/streamlit_screenshot_10.png)
+
 ## Notes
 
 - Models are downloaded/cached automatically by `sentence-transformers`.
 - For a portfolio repo, avoid committing any internal/copyrighted datasets.
-- On macOS, Hugging Face stores its cached models at ~/.cache/huggingface/hub. You can completely clear this cache by running the following command in your terminal:
+- On macOS, Hugging Face stores its cached models at `~/.cache/huggingface/hub`. You can completely clear this cache by running:
+
 ```bash
 rm -rf ~/.cache/huggingface/hub
 ```

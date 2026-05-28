@@ -1,3 +1,5 @@
+import json
+from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -13,6 +15,7 @@ from strategies.shared import (
 from triton_input_simulator import simulate_triton_encode
 from utils import normalize_keyword
 
+# Core baseline default weights configuration mapping
 FIELD_WEIGHTS = {
     "name": 0.25,
     "description": 0.15,
@@ -21,11 +24,23 @@ FIELD_WEIGHTS = {
     "sponsors": 0.10,
 }
 
+# DYNAMIC HOOK: Intercept pipeline calls and pull custom weights from JSON if available
+active_weights_json = Path("data/active_weights.json")
+if active_weights_json.exists():
+    try:
+        with open(active_weights_json, "r", encoding="utf-8") as f:
+            user_overrides = json.load(f)
+            if isinstance(user_overrides, dict):
+                # Update configuration dictionary values dynamically
+                FIELD_WEIGHTS.update({k: float(v) for k, v in user_overrides.items()})
+    except Exception:
+        pass  # Quietly fall back onto default parameters on structural read errors
+
 
 def process_row(
     row: dict[str, Any],
     model: SentenceTransformer,
-    *,
+    *donotpass: Any,
     model_id: str,
     strategy: str,
 ) -> dict[str, Any]:
@@ -34,7 +49,6 @@ def process_row(
 
     entity_type = str(row.get("entity_type", ""))
     json_data = row.get("json_data") if isinstance(row.get("json_data"), dict) else {}
-
     relevance_score = row.get("relevance_score")
     baseline_relevance_score = row.get("baseline_relevance_score")
     row_id = str(row.get("id", ""))
@@ -44,13 +58,13 @@ def process_row(
 
     chunk_texts: list[str] = []
     chunk_tokens_list: list[list[str]] = []
-
     field_embeddings: list[np.ndarray] = []
+
     for field_name, field_value in field_map.items():
         if not field_value:
             continue
 
-        chunk_texts.append(field_value)
+        chunk_texts.append(f"{field_name}: {field_value}")
         tokens = model.tokenizer.tokenize(field_value)
         chunk_tokens_list.append(tokens)
 
@@ -81,12 +95,7 @@ def process_row(
         strategy=strategy,
         field_count=len([value for value in field_map.values() if value]),
         token_length=sum(len(t) for t in chunk_tokens_list),
-        tokens="\n".join(
-            [
-                f"Chunk {i + 1}: {' '.join(tokens)}"
-                for i, tokens in enumerate(chunk_tokens_list)
-            ]
-        ),
+        tokens="\n".join([" ".join(t) for t in chunk_tokens_list]),
         cosine_score=cosine_score,
         relevance_score=relevance_score,
         baseline_relevance_score=baseline_relevance_score,
