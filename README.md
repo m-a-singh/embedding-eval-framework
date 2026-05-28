@@ -185,3 +185,7 @@ flowchart TD
 
 - Models are downloaded/cached automatically by `sentence-transformers`.
 - For a portfolio repo, avoid committing any internal/copyrighted datasets.
+- On macOS, Hugging Face stores its cached models at ~/.cache/huggingface/hub. You can completely clear this cache by running the following command in your terminal:
+```bash
+rm -rf ~/.cache/huggingface/hub
+```
